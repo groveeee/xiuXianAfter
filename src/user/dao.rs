@@ -4,7 +4,6 @@
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
-#[derive(Debug)]
 struct Friar {
     id: Uuid,
     // 账户名称
