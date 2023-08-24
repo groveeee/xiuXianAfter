@@ -17,6 +17,6 @@ pub async fn success<T: serde::Serialize>(data: T) -> HttpResponse {
     HttpResponse::Ok().json(JsonSuccessResult{code:200,data:Some(data)})
 }
 
-pub async fn failed(msg: String) -> HttpResponse {
-    HttpResponse::Ok().json(JsonFailedResult{code:500,msg })
+pub async fn failed(msg: &str) -> HttpResponse {
+    HttpResponse::Ok().json(JsonFailedResult{code:500,msg:String::from(msg) })
 }

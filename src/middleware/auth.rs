@@ -1,9 +1,10 @@
 use std::env;
 use std::future::{ready, Ready};
 
-use actix_web::{dev::{self, Service, ServiceRequest, ServiceResponse, Transform}, Error, error, HttpMessage, HttpResponse};
+use actix_web::{dev::{self, Service, ServiceRequest, ServiceResponse, Transform}, Error, error, HttpMessage, HttpRequest, HttpResponse};
 use futures_util::future::LocalBoxFuture;
 use jsonwebtoken::{Algorithm, decode, DecodingKey, Validation};
+use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 use crate::services::handler::user::Claims;
 
@@ -79,7 +80,10 @@ impl<S, B> Service<ServiceRequest> for AuthMiddleware<S>
                 // 将用户信息存入到请求上下文中
                 // req.extensions_mut()获取扩展数据
                 // 扩展数据允许您在请求的上下文中存储和访问自定义数据，这些数据可以在整个请求的生命周期内共享
-                req.extensions_mut().insert(ContextUser{id:claims.unwrap().sub.parse().unwrap()});
+                let claims_unwrap = claims.unwrap();
+                let id:Uuid = claims_unwrap.sub.parse().unwrap();
+                let realm = claims_unwrap.realm;
+                req.extensions_mut().insert(ContextUser{id,realm});
             }
         }
         let fut = self.service.call(req);
@@ -105,4 +109,12 @@ impl<S, B> Service<ServiceRequest> for AuthMiddleware<S>
 #[derive(Debug)]
 pub struct ContextUser {
     pub id: Uuid,
+    pub realm:i64,
+}
+
+/// <h2>获取当前登录用户</h2>
+pub fn get_current_user(req: HttpRequest) ->  ContextUser {
+    let extensions = req.extensions();
+    let context_user = extensions.get::<ContextUser>().unwrap();
+    ContextUser{id:context_user.id,realm:context_user.realm}
 }

@@ -1,7 +1,7 @@
 use actix_web::{App, error, get, HttpMessage, HttpRequest, HttpResponse, HttpServer, Responder, web};
 use crate::db::init_db;
 use crate::middleware::{auth};
-use crate::middleware::auth::ContextUser;
+use crate::middleware::auth::{ContextUser, get_current_user};
 use crate::services::config::config;
 
 mod db;
@@ -9,11 +9,11 @@ mod model;
 mod r#pub;
 mod middleware;
 mod services;
+mod enums;
 
 #[get("/")]
 async fn hello(req:HttpRequest) -> impl Responder {
-    let extensions = req.extensions_mut();
-    let context_user = extensions.get::<ContextUser>().unwrap();
+    let context_user = get_current_user(req);
     println!("{:?}", context_user);
     HttpResponse::Ok().body("Hello world!")
 }

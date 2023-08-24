@@ -8,6 +8,7 @@ use jsonwebtoken::{Algorithm, decode, DecodingKey, encode, EncodingKey, Header, 
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres, Row};
 use uuid::Uuid;
+use crate::enums::Realm;
 use crate::r#pub::result::{failed, success};
 
 
@@ -34,14 +35,14 @@ pub async fn register(info: web::Json<RegisterInfo>, pool: web::Data<Pool<Postgr
                 match x {
                     Ok(_) => {
                         println!("ok");
-                        let string = create_token(id);
+                        let string = create_token(id,0);
                         return success(string).await;
                     }
                     Err(e) => { println!("{}", e); }
                 }
             }
             Some(_) => {
-                let response = failed(String::from("注册失败!该账号已经被注册!")).await;
+                let response = failed("注册失败!该账号已经被注册!").await;
                 return response;
             }
         }
@@ -56,14 +57,15 @@ pub async fn login(info: web::Json<RegisterInfo>, pool: web::Data<Pool<Postgres>
     hasher.input_str(&info.passwd);
     let md5_passwd = hasher.result_str();
 
-    let one = sqlx::query!(r#"select id from xiuxian.friar where account = $1 and passwd = $2"#,info.account,md5_passwd).fetch_one(&**pool).await;
+    let one = sqlx::query!(r#"select id,realm from xiuxian.friar where account = $1 and passwd = $2"#,info.account,md5_passwd).fetch_one(&**pool).await;
     return match one {
         Ok(record) => {
-            let string = create_token(record.id);
+            let realm = record.realm;
+            let string = create_token(record.id,realm.unwrap().into());
             success(string).await
         }
         Err(_) => {
-            failed(String::from("账号或密码错误!")).await
+            failed("账号或密码错误!").await
         }
     }
 
@@ -93,20 +95,21 @@ pub struct Claims {
     pub exp: usize,
     // 必须。 (validate_exp 在验证中默认为真值)。截止时间 (UTC 时间戳)
     pub sub: String,         // 可选。 标题 (令牌指向的人)
+    pub realm:i64,
 }
 
 impl Claims {
-    pub fn new(aud: String, exp: usize, sub: String) -> Self {
-        Self { aud, exp, sub }
+    pub fn new(aud: String, exp: usize, sub: String,realm:i64) -> Self {
+        Self { aud, exp, sub,realm }
     }
 }
 
 /// 根据用户ID生成Token
-pub fn create_token(uuid: Uuid) -> String {
+pub fn create_token(uuid: Uuid,realm:i64) -> String {
     let time = env::var("TOKEN_EFFECTIVE_TIME").unwrap();
     let i = u64::from_str(time.as_str()).unwrap();
     let duration: u64 = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() + i;
-    let my_claims = Claims::new(String::from("BP"), duration as usize, uuid.to_string());
+    let my_claims = Claims::new(String::from("BP"), duration as usize, uuid.to_string(),realm);
     let header = Header::new(Algorithm::HS512);
     let secret = env::var("TOKEN_SECRET").unwrap();
     encode(&header, &my_claims, &EncodingKey::from_secret(secret.as_ref())).unwrap()
