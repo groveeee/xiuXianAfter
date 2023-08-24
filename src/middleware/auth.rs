@@ -1,11 +1,14 @@
 use std::env;
 use std::future::{ready, Ready};
-use std::ptr::eq;
 
 use actix_web::{dev::{self, Service, ServiceRequest, ServiceResponse, Transform}, Error, error, HttpResponse};
 use futures_util::future::LocalBoxFuture;
 use jsonwebtoken::{Algorithm, decode, DecodingKey, Validation};
-use crate::header_handler::Claims;
+use crate::services::handler::user::Claims;
+
+/// 前端请求头携带参数
+const XAUTH: &str = "X-Auth-Token";
+
 
 // 中间件处理有两个步骤。
 // 1. 中间件初始化，中间件工厂被调用，链中的下一个服务作为参数。
@@ -70,7 +73,7 @@ impl<S, B> Service<ServiceRequest> for SayHiMiddleware<S>
             is_token = validate_token(token);
         }
         let fut = self.service.call(req);
-        if path == "/user/login" || path == "/user/register" {
+        if path == "/model/login" || path == "/model/register" {
             Box::pin(async move {
                 let res = fut.await?;
                 Ok(res)

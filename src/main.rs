@@ -1,13 +1,14 @@
 use actix_web::{App, error, get, HttpResponse, HttpServer, Responder, web};
 use actix_web::guard::fn_guard;
 use crate::db::init_db;
-use crate::header_handler::{auth, check_token};
-use crate::user::user_config;
+use crate::middleware::{auth};
+use crate::services::config::config;
 
 mod db;
-mod user;
+mod model;
 mod r#pub;
-mod header_handler;
+mod middleware;
+mod services;
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -29,7 +30,7 @@ async fn main() -> std::io::Result<()> {
             });
         App::new()
             .wrap(auth::Auth)
-            .configure(user_config)
+            .configure(config)
             .app_data(json_config)
             .app_data(web::Data::new(pool.clone()))
             .service(hello)
