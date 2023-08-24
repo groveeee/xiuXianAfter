@@ -83,16 +83,7 @@ pub fn check_token(token: &str) -> Option<Claims> {
     }
 }
 
-/// 当前登录用户的信息
-pub struct ContextUser {
-    pub id: Uuid,
-}
 
-impl ContextUser {
-    pub fn new(id: Uuid) -> Self {
-        Self { id }
-    }
-}
 
 /// 声言结构型, 需要由`Serialize` 或 `Deserialize`派生
 #[derive(Debug, Serialize, Deserialize)]
