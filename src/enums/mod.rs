@@ -7,6 +7,7 @@ pub enum Realm {
     LianQi,
     ZhuJi,
     JinDan,
+    GM,
     // ... 可以继续添加更多境界
 }
 
@@ -17,6 +18,7 @@ impl Realm {
             Realm::LianQi => 10,
             Realm::ZhuJi => 20,
             Realm::JinDan => 30,
+            Realm::GM => 10000000,
             // ... 根据需要添加其他境界的能量增加值
         }
     }
@@ -30,6 +32,7 @@ lazy_static! {
         map.insert(1, Realm::LianQi);
         map.insert(2, Realm::ZhuJi);
         map.insert(3, Realm::JinDan);
+        map.insert(999, Realm::GM);
         // ... 可以继续添加其他数字和对应境界的映射
         map
     };
