@@ -22,14 +22,6 @@ pub async fn increase_reiki(req: HttpRequest, pool: web::Data<Pool<Postgres>>) -
     success("OK").await
 }
 
-/// 获取当前用户的相关信息
-fn get_user_info(req: HttpRequest) -> (ContextUser, i64, i64) {
-    let user = get_current_user(req);
-    let realm = REALM_MAP.get(&user.realm).unwrap();
-    let speed = Realm::cultivation_speed(realm);
-    let max_reiki = Realm::maximum_number_of_reiki(realm);
-    (user, speed, max_reiki)
-}
 
 /// 突破
 pub async fn breakthrough(req: HttpRequest, pool: web::Data<Pool<Postgres>>) -> HttpResponse {
@@ -45,4 +37,13 @@ pub async fn breakthrough(req: HttpRequest, pool: web::Data<Pool<Postgres>>) -> 
         }
         Err(_) => { return failed("系统异常!").await; }
     }
+}
+
+/// 获取当前用户的相关信息
+pub fn get_user_info(req: HttpRequest) -> (ContextUser, i64, i64) {
+    let user = get_current_user(req);
+    let realm = REALM_MAP.get(&user.realm).unwrap();
+    let speed = Realm::cultivation_speed(realm);
+    let max_reiki = Realm::maximum_number_of_reiki(realm);
+    (user, speed, max_reiki)
 }
