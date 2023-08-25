@@ -3,6 +3,7 @@ use sqlx::{Pool, Postgres};
 use crate::enums::{Realm, REALM_MAP};
 use crate::middleware::auth::{ContextUser, get_current_user};
 use crate::r#pub::result::{failed, success};
+use crate::services::handler::user::create_token;
 
 /// 增加灵气
 pub async fn increase_reiki(req: HttpRequest, pool: web::Data<Pool<Postgres>>) -> HttpResponse {
@@ -31,14 +32,17 @@ fn get_user_info(req: HttpRequest) -> (ContextUser, i64, i64) {
 }
 
 /// 突破
-pub async fn breakthrough(req:HttpRequest,pool:web::Data<Pool<Postgres>>)->HttpResponse{
+pub async fn breakthrough(req: HttpRequest, pool: web::Data<Pool<Postgres>>) -> HttpResponse {
     let info = get_user_info(req);
     let result = sqlx::query!(r#"update xiuxian.xiuxian.friar set realm = realm+1 where id = $1 and reiki = $2 returning realm"#
         ,info.0.id,info.2)
         .fetch_one(&**pool).await;
     match result {
-        Ok(r) => { println!("{}", r.realm.unwrap()); }
+        Ok(r) => {
+            println!("{}", r.realm.unwrap());
+            let string = create_token(info.0.id, r.realm.unwrap() as i64);
+            success(string).await
+        }
         Err(_) => { return failed("系统异常!").await; }
     }
-    success("OK").await
 }
