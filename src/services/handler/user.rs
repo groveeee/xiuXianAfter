@@ -26,11 +26,11 @@ pub async fn register(info: web::Json<RegisterInfo>, pool: web::Data<Pool<Postgr
     hasher.input_str(&info.passwd);
     let md5_passwd = hasher.result_str();
 
-    let one = sqlx::query!(r#"select account from xiuxian.friar where account = $1"#,info.account).fetch_one(&**pool).await;
+    let one = sqlx::query!(r#"select account from friar where account = $1"#,info.account).fetch_one(&**pool).await;
     if let Ok(record) = one {
         match record.account {
             None => {
-                let x = sqlx::query!(r#"INSERT INTO xiuxian.friar(id,account,passwd) VALUES($1,$2,$3)"#,id,info.account,md5_passwd)
+                let x = sqlx::query!(r#"INSERT INTO friar(id,account,passwd) VALUES($1,$2,$3)"#,id,info.account,md5_passwd)
                     .fetch_one(&**pool).await;
                 match x {
                     Ok(_) => {
@@ -57,7 +57,7 @@ pub async fn login(info: web::Json<RegisterInfo>, pool: web::Data<Pool<Postgres>
     hasher.input_str(&info.passwd);
     let md5_passwd = hasher.result_str();
 
-    let one = sqlx::query!(r#"select id,realm from xiuxian.friar where account = $1 and passwd = $2"#,info.account,md5_passwd).fetch_one(&**pool).await;
+    let one = sqlx::query!(r#"select id,realm from friar where account = $1 and passwd = $2"#,info.account,md5_passwd).fetch_one(&**pool).await;
     return match one {
         Ok(record) => {
             let realm = record.realm;

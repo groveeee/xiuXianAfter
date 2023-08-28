@@ -9,7 +9,7 @@ use crate::services::handler::user::create_token;
 pub async fn increase_reiki(req: HttpRequest, pool: web::Data<Pool<Postgres>>) -> HttpResponse {
     let info = get_user_info(req);
     // 增加灵气 并且不能超过当前境界的最大灵气值
-    let result = sqlx::query!(r#"update xiuxian.xiuxian.friar
+    let result = sqlx::query!(r#"update friar
                     set reiki = case when (reiki + $1)<= $2 then reiki+$3 else $4 end
                     where id = $5
                     returning reiki"#,
@@ -26,7 +26,7 @@ pub async fn increase_reiki(req: HttpRequest, pool: web::Data<Pool<Postgres>>) -
 /// 突破
 pub async fn breakthrough(req: HttpRequest, pool: web::Data<Pool<Postgres>>) -> HttpResponse {
     let info = get_user_info(req);
-    let result = sqlx::query!(r#"update xiuxian.xiuxian.friar set realm = realm+1 where id = $1 and reiki = $2 returning realm"#
+    let result = sqlx::query!(r#"update friar set realm = realm+1 where id = $1 and reiki = $2 returning realm"#
         ,info.0.id,info.2)
         .fetch_one(&**pool).await;
     match result {

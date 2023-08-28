@@ -34,8 +34,8 @@ comment on column friar.realm is '境界';
 comment on column friar.account is '账户名';
 
 alter table friar
-    owner to grovee;
+    owner to postgres;
 
-INSERT INTO xiuxian.friar (id, name, reiki, birth, life, die, realm, account, passwd) VALUES ('62ccd189-d948-47a0-87fa-7f0996939e65', null, 0, '2023-08-13 14:11:10.541526', 120, false, 1, 'jack', 'e10adc3949ba59abbe56e057f20f883e');
-INSERT INTO xiuxian.friar (id, name, reiki, birth, life, die, realm, account, passwd) VALUES ('62b89e97-7d98-4deb-b77a-7c06073ab7dd', null, 0, '2023-08-13 14:21:12.430958', 120, false, 1, 'smith', 'e10adc3949ba59abbe56e057f20f883e');
-INSERT INTO xiuxian.friar (id, name, reiki, birth, life, die, realm, account, passwd) VALUES ('ec3b3c53-44e2-49a5-9d4f-1054ce58449f', null, 999, '2023-08-13 13:44:33.269552', 120, false, 999, 'grovee', 'e10adc3949ba59abbe56e057f20f883e');
+INSERT INTO friar (id, name, reiki, birth, life, die, realm, account, passwd) VALUES ('62ccd189-d948-47a0-87fa-7f0996939e65', null, 0, '2023-08-13 14:11:10.541526', 120, false, 1, 'jack', 'e10adc3949ba59abbe56e057f20f883e');
+INSERT INTO friar (id, name, reiki, birth, life, die, realm, account, passwd) VALUES ('62b89e97-7d98-4deb-b77a-7c06073ab7dd', null, 0, '2023-08-13 14:21:12.430958', 120, false, 1, 'smith', 'e10adc3949ba59abbe56e057f20f883e');
+INSERT INTO friar (id, name, reiki, birth, life, die, realm, account, passwd) VALUES ('ec3b3c53-44e2-49a5-9d4f-1054ce58449f', null, 999, '2023-08-13 13:44:33.269552', 120, false, 999, 'grovee', 'e10adc3949ba59abbe56e057f20f883e');
